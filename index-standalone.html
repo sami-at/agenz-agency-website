@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AGEN-Z</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700;900&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#020207;color:#fff;font-family:'Space Grotesk',sans-serif;overflow-x:hidden;min-height:100vh}
+    canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+    .wrap{position:relative;z-index:1}
+
+    /* NAV */
+    nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 2rem;border-bottom:1px solid rgba(255,255,255,0.06)}
+    .logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;background:linear-gradient(90deg,#ff2d78,#7c3aff,#00f5d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;gap:2rem}
+    .nav-links a{color:rgba(255,255,255,0.5);text-decoration:none;font-size:.85rem;letter-spacing:2px;text-transform:uppercase;transition:color .3s}
+    .nav-links a:hover{color:#fff}
+
+    /* HERO */
+    .hero{min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem;position:relative}
+    .hero-eyebrow{font-size:.75rem;letter-spacing:6px;text-transform:uppercase;color:#7c3aff;margin-bottom:1.5rem;animation:fadeUp .8s ease both}
+    .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,12vw,9rem);line-height:.9;margin-bottom:2rem;animation:fadeUp .8s .15s ease both}
+    .hero-title .line{display:block;overflow:hidden}
+    .hero-title .line span{display:block;animation:slideUp .9s cubic-bezier(.16,1,.3,1) both}
+    .hero-title .line:nth-child(1) span{animation-delay:.1s}
+    .hero-title .line:nth-child(2) span{animation-delay:.22s;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,0.35)}
+    .hero-title .line:nth-child(3) span{animation-delay:.34s;background:linear-gradient(90deg,#ff2d78,#7c3aff,#00f5d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-sub{max-width:480px;color:rgba(255,255,255,0.45);line-height:1.7;font-size:1rem;animation:fadeUp .8s .5s ease both;margin-bottom:3rem}
+    .hero-cta{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .8s .65s ease both}
+
+    /* BUTTONS */
+    .btn-primary,.btn-outline{position:relative;overflow:hidden;font-family:'Space Grotesk',sans-serif;font-size:.9rem;letter-spacing:1px;cursor:pointer;padding:.9rem 2.2rem;border-radius:100px}
+    .btn-primary{background:linear-gradient(135deg,#ff2d78,#7c3aff);border:none;color:#fff;font-weight:700;transition:transform .2s,box-shadow .2s}
+    .btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#7c3aff,#00f5d4);opacity:0;transition:opacity .4s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 20px 60px rgba(124,58,255,.5)}
+    .btn-primary:hover::before{opacity:1}
+    .btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.15);color:#fff;transition:all .3s}
+    .btn-outline:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.04)}
+    .btn-glow{position:absolute;width:200px;height:200px;border-radius:50%;pointer-events:none;transition:opacity .3s,transform .3s;opacity:0;transform:translate(-50%,-50%) scale(0)}
+    .btn-glow-text{position:relative;z-index:1}
+
+    /* MARQUEE */
+    .marquee-wrap{padding:2rem 0;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);overflow:hidden;position:relative}
+    .marquee-wrap::before,.marquee-wrap::after{content:'';position:absolute;top:0;width:100px;height:100%;z-index:2}
+    .marquee-wrap::before{left:0;background:linear-gradient(90deg,#020207,transparent)}
+    .marquee-wrap::after{right:0;background:linear-gradient(-90deg,#020207,transparent)}
+    .marquee-track{display:flex;width:max-content;animation:marquee 20s linear infinite}
+    .marquee-item{padding:0 3rem;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:4px;color:rgba(255,255,255,0.2);white-space:nowrap}
+    .marquee-item.accent{color:#7c3aff}
+
+    /* CARDS */
+    .section{padding:5rem 2rem;max-width:1100px;margin:0 auto}
+    .section-label{font-size:.7rem;letter-spacing:6px;text-transform:uppercase;color:#7c3aff;margin-bottom:1rem}
+    .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,5rem);line-height:1;margin-bottom:3rem}
+
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:rgba(255,255,255,0.06);border-radius:16px;overflow:hidden}
+    .card{background:#020207;padding:2.5rem;position:relative;overflow:hidden;cursor:pointer;transition:background .3s}
+    .card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 180deg at 50% 70%,#ff2d78 0deg,#7c3aff 90deg,#00f5d4 180deg,#ff2d78 360deg);opacity:0;transition:opacity .5s;z-index:0;animation:spin 6s linear infinite;pointer-events:none}
+    .card:hover::before{opacity:.04}
+    .card:hover{background:#06060e}
+    .card-num{font-family:'Bebas Neue',sans-serif;font-size:5rem;color:rgba(255,255,255,0.04);position:absolute;top:1rem;right:1.5rem;line-height:1;z-index:0}
+    .card-icon{font-size:2rem;margin-bottom:1.5rem;display:block;position:relative;z-index:1}
+    .card h3{font-size:1.2rem;font-weight:700;margin-bottom:.75rem;position:relative;z-index:1}
+    .card p{color:rgba(255,255,255,0.45);font-size:.9rem;line-height:1.7;position:relative;z-index:1}
+
+    /* GLITCH TEXT */
+    .glitch-section{padding:6rem 2rem;text-align:center;position:relative;overflow:hidden}
+    .glitch-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,8rem);position:relative;display:inline-block;animation:glitch-base 1.4s infinite}
+    .glitch-title::before,.glitch-title::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%}
+    .glitch-title::before{color:#ff2d78;animation:glitch1 1.4s infinite;clip-path:polygon(0 0,100% 0,100% 33%,0 33%);mix-blend-mode:screen}
+    .glitch-title::after{color:#00f5d4;animation:glitch2 1.4s infinite;clip-path:polygon(0 60%,100% 60%,100% 100%,0 100%);mix-blend-mode:screen}
+
+    /* STAT STRIP */
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06)}
+    .stat{padding:3rem 2rem;text-align:center;border-right:1px solid rgba(255,255,255,0.06)}
+    .stat:last-child{border-right:none}
+    .stat-num{font-family:'Bebas Neue',sans-serif;font-size:4rem;background:linear-gradient(135deg,#ff2d78,#7c3aff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;display:block}
+    .stat-label{color:rgba(255,255,255,0.35);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-top:.5rem;display:block}
+
+    /* FOOTER */
+    footer{padding:3rem 2rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:1rem}
+    footer .logo{font-size:1.4rem}
+    footer p{color:rgba(255,255,255,0.2);font-size:.8rem}
+
+    /* SERVICES — "What We Do" */
+    .services{position:relative;padding:7rem 2rem;max-width:1240px;margin:0 auto}
+    .services::before{content:'';position:absolute;inset:0;background:
+      radial-gradient(600px circle at 10% 20%,rgba(255,45,120,.08),transparent 50%),
+      radial-gradient(700px circle at 90% 80%,rgba(0,245,212,.07),transparent 55%),
+      radial-gradient(500px circle at 50% 50%,rgba(124,58,255,.06),transparent 60%);
+      pointer-events:none;z-index:0}
+    .services-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:2rem;margin-bottom:4rem;position:relative;z-index:1}
+    .services-head .heading{flex:1;min-width:280px}
+    .services-head .section-title{margin-bottom:0}
+    .services-head .heading-meta{max-width:320px;color:rgba(255,255,255,.45);font-size:.9rem;line-height:1.7;border-left:1px solid rgba(255,255,255,.12);padding-left:1.25rem}
+    .services-head .heading-meta strong{color:#fff;font-weight:700;display:block;margin-bottom:.4rem;font-size:.75rem;letter-spacing:3px;text-transform:uppercase}
+
+    .services-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1.25rem;position:relative;z-index:1}
+    .service-item{
+      grid-column:span 2;
+      position:relative;
+      padding:2.25rem 2rem 2rem;
+      min-height:280px;
+      display:flex;flex-direction:column;
+      background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:20px;
+      overflow:hidden;
+      isolation:isolate;
+      transition:transform .5s cubic-bezier(.16,1,.3,1),border-color .4s,background .4s;
+      cursor:pointer;
+    }
+    /* Featured first card spans wider */
+    .service-item.featured{grid-column:span 3;min-height:320px}
+    .service-item:nth-child(2){grid-column:span 3}
+
+    /* Animated gradient border on hover */
+    .service-item::before{
+      content:'';position:absolute;inset:-1px;border-radius:inherit;padding:1px;
+      background:conic-gradient(from var(--ang,0deg),#ff2d78,#7c3aff,#00f5d4,#ff2d78);
+      -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;mask-composite:exclude;
+      opacity:0;transition:opacity .5s;pointer-events:none;z-index:2;
+    }
+    /* Soft inner glow that follows the cursor */
+    .service-item::after{
+      content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+      background:radial-gradient(280px circle at var(--mx,50%) var(--my,0%),rgba(124,58,255,.18),transparent 60%);
+      opacity:0;transition:opacity .5s;z-index:1;
+    }
+    .service-item:hover{transform:translateY(-6px);border-color:rgba(255,255,255,.15);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01))}
+    .service-item:hover::before{opacity:1;animation:rotateAng 4s linear infinite}
+    .service-item:hover::after{opacity:1}
+
+    .service-num{font-family:'Bebas Neue',sans-serif;font-size:6.5rem;line-height:1;letter-spacing:2px;
+      position:absolute;top:.75rem;right:1.25rem;
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      transition:transform .5s cubic-bezier(.16,1,.3,1);z-index:0;
+    }
+    .service-item:hover .service-num{transform:translate(-4px,2px) scale(1.05)}
+
+    .service-icon-wrap{position:relative;width:56px;height:56px;margin-bottom:1.75rem;display:flex;align-items:center;justify-content:center;z-index:3}
+    .service-icon-wrap .icon-blur{position:absolute;inset:-6px;border-radius:50%;background:linear-gradient(135deg,#ff2d78,#7c3aff,#00f5d4);filter:blur(18px);opacity:.35;transition:opacity .4s,transform .4s}
+    .service-item:hover .icon-blur{opacity:.7;transform:scale(1.15)}
+    .service-icon-wrap .icon{position:relative;width:100%;height:100%;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+      background:linear-gradient(135deg,rgba(255,45,120,.15),rgba(124,58,255,.15),rgba(0,245,212,.12));
+      border:1px solid rgba(255,255,255,.1);
+      backdrop-filter:blur(6px);
+      transition:transform .6s cubic-bezier(.16,1,.3,1);
+    }
+    .service-item:hover .icon{transform:rotate(8deg) scale(1.06)}
+
+    .service-item h3{font-size:1.25rem;font-weight:700;margin-bottom:.75rem;position:relative;z-index:3;letter-spacing:-.01em}
+    .service-item.featured h3{font-size:1.55rem}
+    .service-item p{color:rgba(255,255,255,.5);font-size:.9rem;line-height:1.7;position:relative;z-index:3;flex:1}
+
+    .service-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.25rem;position:relative;z-index:3}
+    .service-tag{font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;padding:.35rem .65rem;border-radius:100px;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);background:rgba(255,255,255,.02);transition:color .3s,border-color .3s}
+    .service-item:hover .service-tag{color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.2)}
+
+    .service-link{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;font-size:.78rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.55);position:relative;z-index:3;transition:color .3s,gap .3s}
+    .service-link svg{width:14px;height:14px;transition:transform .4s}
+    .service-item:hover .service-link{color:#fff;gap:.85rem}
+    .service-item:hover .service-link svg{transform:translateX(4px)}
+
+    @keyframes rotateAng{to{--ang:360deg}}
+    @property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+
+    @media (max-width:900px){
+      .services-grid{grid-template-columns:repeat(2,1fr);gap:1rem}
+      .service-item,.service-item.featured,.service-item:nth-child(2){grid-column:span 2}
+      .services{padding:5rem 1.25rem}
+    }
+
+    /* SCROLL REVEAL */
+    .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+    .reveal.visible{opacity:1;transform:none}
+
+    /* KEYFRAMES */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    @keyframes slideUp{from{transform:translateY(110%)}to{transform:none}}
+    @keyframes marquee{to{transform:translateX(-50%)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes glitch-base{
+      0%,54%,56%,58%,72%,74%,100%{transform:none;filter:none}
+      55%{transform:skewX(-4deg) translateX(3px);filter:brightness(1.3)}
+      57%{transform:skewX(3deg) translateX(-4px)}
+      73%{transform:skewX(2deg) translateX(2px) scaleY(1.01);filter:brightness(1.2)}
+      75%{transform:none}
+    }
+    @keyframes glitch1{
+      0%,48%,52%,56%,70%,76%,100%{transform:none;opacity:0}
+      49%{transform:translate(-6px,-2px) skewX(-3deg);opacity:1}
+      50%{transform:translate(4px,1px);opacity:.9;clip-path:polygon(0 10%,100% 10%,100% 40%,0 40%)}
+      51%{transform:translate(-3px,3px) skewX(2deg);opacity:.7;clip-path:polygon(0 0,100% 0,100% 33%,0 33%)}
+      53%{transform:none;opacity:0}
+      71%{transform:translate(5px,-1px) skewX(-2deg);opacity:.8}
+      73%{transform:translate(-4px,2px);opacity:.5}
+      75%{opacity:0}
+    }
+    @keyframes glitch2{
+      0%,50%,54%,72%,78%,100%{transform:none;opacity:0}
+      51%{transform:translate(6px,2px) skewX(3deg);opacity:.9;clip-path:polygon(0 55%,100% 55%,100% 80%,0 80%)}
+      53%{transform:translate(-4px,-1px);opacity:.6;clip-path:polygon(0 60%,100% 60%,100% 100%,0 100%)}
+      55%{opacity:0}
+      73%{transform:translate(-5px,1px) skewX(2deg);opacity:.85}
+      75%{transform:translate(3px,-2px);opacity:.4}
+      77%{opacity:0}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particle Canvas -->
+  <canvas id="bg"></canvas>
+
+  <div class="wrap">
+
+    <!-- NAV -->
+    <nav>
+      <div class="logo">AGEN-Z</div>
+      <div class="nav-links">
+        <a href="#">Work</a>
+        <a href="#">Studio</a>
+        <a href="#">Journal</a>
+        <a href="#">Contact</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-eyebrow">Creative Digital Studio</div>
+      <h1 class="hero-title">
+        <span class="line"><span>WE BUILD</span></span>
+        <span class="line"><span>WHAT OTHERS</span></span>
+        <span class="line"><span>DREAM.</span></span>
+      </h1>
+      <p class="hero-sub">
+        Experiences that make people stop scrolling and start feeling. No templates. No compromises.
+      </p>
+      <div class="hero-cta">
+        <button class="btn-primary" data-glow-color="rgba(0,245,212,0.45)">
+          <span class="btn-glow"></span>
+          <span class="btn-glow-text">Start a project</span>
+        </button>
+        <button class="btn-outline" data-glow-color="rgba(124,58,255,0.5)">
+          <span class="btn-glow"></span>
+          <span class="btn-glow-text">See our work</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee-wrap">
+      <div class="marquee-track">
+        <span class="marquee-item">Brand Identity</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">Motion Design</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">Web Development</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">Art Direction</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">3D Experiences</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">Digital Campaigns</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">Brand Identity</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">Motion Design</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">Web Development</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">Art Direction</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">3D Experiences</span><span class="marquee-item accent">✦</span>
+        <span class="marquee-item">Digital Campaigns</span><span class="marquee-item accent">✦</span>
+      </div>
+    </div>
+
+    <!-- SERVICES / WHAT WE DO -->
+    <section class="services reveal" id="what-we-do">
+      <div class="services-head">
+        <div class="heading">
+          <div class="section-label">◆ What we do</div>
+          <div class="section-title">Services that<br />move you forward.</div>
+        </div>
+        <div class="heading-meta">
+          <strong>Our craft</strong>
+          A focused toolkit for ambitious brands — strategy, design, and engineering working as one.
+        </div>
+      </div>
+
+      <div class="services-grid">
+
+        <article class="service-item featured">
+          <span class="service-num">01</span>
+          <div class="service-icon-wrap"><span class="icon-blur"></span><span class="icon">⬡</span></div>
+          <h3>Web Development</h3>
+          <p>Custom websites engineered for speed, accessibility, and conversion — from cinematic landing pages to full-scale platforms with bespoke CMSs.</p>
+          <div class="service-tags">
+            <span class="service-tag">React</span>
+            <span class="service-tag">Next.js</span>
+            <span class="service-tag">Headless CMS</span>
+            <span class="service-tag">Performance</span>
+          </div>
+          <span class="service-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </article>
+
+        <article class="service-item">
+          <span class="service-num">02</span>
+          <div class="service-icon-wrap"><span class="icon-blur"></span><span class="icon">◈</span></div>
+          <h3>Mobile App Development</h3>
+          <p>Native and cross-platform apps delivering seamless experiences across iOS and Android, from MVP to scale.</p>
+          <div class="service-tags">
+            <span class="service-tag">iOS</span>
+            <span class="service-tag">Android</span>
+            <span class="service-tag">React Native</span>
+          </div>
+          <span class="service-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </article>
+
+        <article class="service-item">
+          <span class="service-num">03</span>
+          <div class="service-icon-wrap"><span class="icon-blur"></span><span class="icon">⬗</span></div>
+          <h3>E-commerce &amp; Online Sales</h3>
+          <p>End-to-end online stores with secure payments, smart inventory, and conversion-focused design.</p>
+          <div class="service-tags">
+            <span class="service-tag">Shopify</span>
+            <span class="service-tag">Stripe</span>
+            <span class="service-tag">CRO</span>
+          </div>
+          <span class="service-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </article>
+
+        <article class="service-item">
+          <span class="service-num">04</span>
+          <div class="service-icon-wrap"><span class="icon-blur"></span><span class="icon">✺</span></div>
+          <h3>UI / UX Design</h3>
+          <p>Intuitive interfaces and design systems that scale across products and feel alive in the hands of users.</p>
+          <div class="service-tags">
+            <span class="service-tag">Figma</span>
+            <span class="service-tag">Design Systems</span>
+            <span class="service-tag">Prototyping</span>
+          </div>
+          <span class="service-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </article>
+
+        <article class="service-item">
+          <span class="service-num">05</span>
+          <div class="service-icon-wrap"><span class="icon-blur"></span><span class="icon">◉</span></div>
+          <h3>Local SEO &amp; Visibility</h3>
+          <p>Get found by the customers that matter most — Google optimization, organic ranking, and authority building.</p>
+          <div class="service-tags">
+            <span class="service-tag">SEO</span>
+            <span class="service-tag">Google Maps</span>
+            <span class="service-tag">Analytics</span>
+          </div>
+          <span class="service-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </article>
+
+        <article class="service-item">
+          <span class="service-num">06</span>
+          <div class="service-icon-wrap"><span class="icon-blur"></span><span class="icon">⚙</span></div>
+          <h3>Maintenance &amp; Optimization</h3>
+          <p>Ongoing support, performance tuning, and continuous improvements that keep your product sharp.</p>
+          <div class="service-tags">
+            <span class="service-tag">Monitoring</span>
+            <span class="service-tag">Speed</span>
+            <span class="service-tag">A/B Testing</span>
+          </div>
+          <span class="service-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- GLITCH -->
+    <div class="glitch-section reveal">
+      <div class="glitch-title" data-text="NO LIMITS">NO LIMITS</div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats reveal">
+      <div class="stat">
+        <span class="stat-num">340+</span>
+        <span class="stat-label">Projects shipped</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">98%</span>
+        <span class="stat-label">Client retention</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">12</span>
+        <span class="stat-label">Awwwards wins</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">6yrs</span>
+        <span class="stat-label">In the game</span>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="logo">AGEN-Z</div>
+      <p>© 2026 — Built different by design</p>
+      <div class="nav-links">
+        <a href="#">Twitter</a>
+        <a href="#">Instagram</a>
+        <a href="#">Dribbble</a>
+      </div>
+    </footer>
+
+  </div><!-- /.wrap -->
+
+  <script>
+    /* ─── PARTICLE CANVAS ─── */
+    (function () {
+      const canvas = document.getElementById('bg');
+      const ctx = canvas.getContext('2d');
+      let W, H, animId;
+      const particles = [];
+      const mouse = { x: -999, y: -999 };
+
+      function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      class Particle {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * W;
+          this.y = Math.random() * H;
+          this.vx = (Math.random() - .5) * .3;
+          this.vy = (Math.random() - .5) * .3;
+          this.r = Math.random() * 1.5 + .3;
+          const palette = ['#ff2d78', '#7c3aff', '#00f5d4', '#ffffff'];
+          this.color = palette[Math.floor(Math.random() * palette.length)];
+          this.alpha = Math.random() * .6 + .1;
+        }
+        update() {
+          const dx = this.x - mouse.x, dy = this.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            this.vx += (dx / dist) * .05;
+            this.vy += (dy / dist) * .05;
+          }
+          this.vx *= .99; this.vy *= .99;
+          this.x += this.vx; this.y += this.vy;
+          if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+        }
+        draw() {
+          ctx.save();
+          ctx.globalAlpha = this.alpha;
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      for (let i = 0; i < 200; i++) particles.push(new Particle());
+
+      function drawConnections() {
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d < 90) {
+              ctx.save();
+              ctx.globalAlpha = (1 - d / 90) * .08;
+              ctx.strokeStyle = '#7c3aff';
+              ctx.lineWidth = .5;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
+        }
+      }
+
+      function loop() {
+        ctx.clearRect(0, 0, W, H);
+        drawConnections();
+        particles.forEach(p => { p.update(); p.draw(); });
+        animId = requestAnimationFrame(loop);
+      }
+      loop();
+
+      window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+      window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }, { passive: true });
+    })();
+
+    /* ─── GLOW BUTTONS ─── */
+    document.querySelectorAll('.btn-primary, .btn-outline').forEach(btn => {
+      const glow = btn.querySelector('.btn-glow');
+      const color = btn.dataset.glowColor;
+      btn.addEventListener('mousemove', e => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        glow.style.left = x + 'px';
+        glow.style.top = y + 'px';
+        glow.style.background = `radial-gradient(circle, ${color} 0%, transparent 68%)`;
+      });
+      btn.addEventListener('mouseenter', () => {
+        glow.style.opacity = '1';
+        glow.style.transform = 'translate(-50%, -50%) scale(1)';
+      });
+      btn.addEventListener('mouseleave', () => {
+        glow.style.opacity = '0';
+        glow.style.transform = 'translate(-50%, -50%) scale(0)';
+      });
+    });
+
+    /* ─── SCROLL REVEAL ─── */
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      }),
+      { threshold: 0.15 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    /* ─── SERVICE CARD CURSOR GLOW ─── */
+    document.querySelectorAll('.service-item').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width) * 100 + '%');
+        card.style.setProperty('--my', ((e.clientY - r.top) / r.height) * 100 + '%');
+      });
+    });
+  </script>
+</body>
+</html>
